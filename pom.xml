@@ -31,10 +31,10 @@
     </distributionManagement>
     <properties>
         <difi-commons-asic.version>0.9.3</difi-commons-asic.version>
-        <lombok.version>1.18.0</lombok.version>
+        <lombok.version>1.18.10</lombok.version>
         <changelist>-SNAPSHOT</changelist>
         <kryptering.version>1.0.7</kryptering.version>
-        <mockito.version>3.0.0</mockito.version>
+        <mockito.version>3.1.1</mockito.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <revision>1.0.0</revision>
         <maven.compiler.source>${java.version}</maven.compiler.source>
