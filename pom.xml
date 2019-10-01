@@ -9,15 +9,15 @@
         <version>0.0.9</version>
     </parent>
     <groupId>no.ks.fiks</groupId>
-    <artifactId>fiks-io-asic-handler</artifactId>
+    <artifactId>fiks-io-asice-handler</artifactId>
     <version>${revision}${changelist}</version>
     <name>FIKS IO ASICE handler</name>
     <description>Bibliotek som inneholder funksjonalitet for streaming av ASIC-E pakker</description>
-    <url>https://github.com/ks-no/fiks-io-asic-handler</url>
+    <url>https://github.com/ks-no/fiks-io-asice-handler</url>
     <scm>
-        <connection>scm:git:git@github.com:ks-no/fiks-io-asic-handler.git</connection>
-        <developerConnection>scm:git:git@github.com:ks-no/fiks-io-asic-handler.git</developerConnection>
-        <url>https://github.com/ks-no/fiks-io-asic-handler</url>
+        <connection>scm:git:git@github.com:ks-no/fiks-io-asice-handler.git</connection>
+        <developerConnection>scm:git:git@github.com:ks-no/fiks-io-asice-handler.git</developerConnection>
+        <url>https://github.com/ks-no/fiks-io-asice-handler</url>
     </scm>
     <distributionManagement>
         <repository>
