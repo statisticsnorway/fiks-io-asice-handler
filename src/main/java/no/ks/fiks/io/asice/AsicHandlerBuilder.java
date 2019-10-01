@@ -1,5 +1,6 @@
 package no.ks.fiks.io.asice;
 
+import com.google.common.base.Preconditions;
 import no.ks.fiks.io.asice.crypto.DecryptionStreamServiceImpl;
 import no.ks.fiks.io.asice.crypto.PipedEncryptionServiceImpl;
 import no.ks.fiks.io.asice.model.KeystoreHolder;
@@ -11,6 +12,7 @@ import java.security.PrivateKey;
 import java.util.concurrent.ExecutorService;
 
 public final class AsicHandlerBuilder {
+    private static final String MISSING_PROPERTY_FORMAT = "\"%s\" er ikke satt";
     private PrivateKey privatNokkel;
     private ExecutorService executorService;
     private KeystoreHolder keystoreHolder;
@@ -38,6 +40,9 @@ public final class AsicHandlerBuilder {
     }
 
     public AsicHandler build() {
+        Preconditions.checkNotNull(privatNokkel, MISSING_PROPERTY_FORMAT, "privatNokkel");
+        Preconditions.checkNotNull(executorService, MISSING_PROPERTY_FORMAT, "executorService");
+        Preconditions.checkNotNull(keystoreHolder, MISSING_PROPERTY_FORMAT, "keystoreHolder");
         return new AsicHandler(privatNokkel, new EncryptedAsicWriterImpl(new PipedEncryptionServiceImpl(executorService), executorService, new SignatureHelperProviderImpl(keystoreHolder)), new EncryptedAsicReaderImpl(executorService, new DecryptionStreamServiceImpl()));
     }
 }
