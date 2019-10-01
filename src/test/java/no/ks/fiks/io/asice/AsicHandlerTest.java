@@ -2,15 +2,8 @@ package no.ks.fiks.io.asice;
 
 import com.google.common.primitives.Bytes;
 import lombok.extern.slf4j.Slf4j;
-import no.ks.fiks.io.asice.crypto.DecryptionStreamServiceImpl;
-import no.ks.fiks.io.asice.crypto.PipedEncryptionServiceImpl;
 import no.ks.fiks.io.asice.model.KeystoreHolder;
 import no.ks.fiks.io.asice.model.StreamContent;
-import no.ks.fiks.io.asice.read.EncryptedAsicReader;
-import no.ks.fiks.io.asice.read.EncryptedAsicReaderImpl;
-import no.ks.fiks.io.asice.sign.SignatureHelperProviderImpl;
-import no.ks.fiks.io.asice.write.EncryptedAsicWriter;
-import no.ks.fiks.io.asice.write.EncryptedAsicWriterImpl;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -53,12 +46,10 @@ class AsicHandlerTest {
 
         final ExecutorService executor = Executors.newFixedThreadPool(2);
 
-        final EncryptedAsicWriter encryptedAsicWriter = getEncryptedAsicWriter(executor);
-        final EncryptedAsicReader encryptedAsicReader = getEncryptedAsicReader(executor);
         final AsicHandler asicHandler = AsicHandler.builder()
             .withPrivatNokkel(getPrivateKeyResource("/bob.key"))
-            .withEncryptedAsicWriter(encryptedAsicWriter)
-            .withEncryptedAsicReader(encryptedAsicReader)
+            .withKeyStoreHolder(getKeystoreHolder())
+            .withExecutorService(executor)
             .build();
 
         byte[] plaintext = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
@@ -84,13 +75,10 @@ class AsicHandlerTest {
 
         final ExecutorService executor = Executors.newFixedThreadPool(2);
 
-        final EncryptedAsicWriter encryptedAsicWriter = getEncryptedAsicWriter(executor);
-        final EncryptedAsicReader encryptedAsicReader = getEncryptedAsicReader(executor);
-
         final AsicHandler asicHandler = AsicHandler.builder()
             .withPrivatNokkel(getPrivateKeyResource("/bob.key"))
-            .withEncryptedAsicWriter(encryptedAsicWriter)
-            .withEncryptedAsicReader(encryptedAsicReader)
+            .withKeyStoreHolder(getKeystoreHolder())
+            .withExecutorService(executor)
             .build();
 
         byte[] payload = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
@@ -108,11 +96,10 @@ class AsicHandlerTest {
 
         final ExecutorService executor = Executors.newFixedThreadPool(2);
 
-        final EncryptedAsicWriter encryptedAsicWriter = getEncryptedAsicWriter(executor);
-        final EncryptedAsicReader encryptedAsicReader = getEncryptedAsicReader(executor);
-
-        AsicHandler asicHandler = new AsicHandler(getPrivateKeyResource("/bob.key"),
-            encryptedAsicWriter, encryptedAsicReader);
+        final AsicHandler asicHandler = AsicHandler.builder().withPrivatNokkel(getPrivateKeyResource("/bob.key"))
+            .withExecutorService(executor)
+            .withKeyStoreHolder(getKeystoreHolder())
+            .build();
 
         byte[] payload = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
         InputStream encrypted = asicHandler.encrypt(getPublicCertResource("bob.cert"), singletonList(new StreamContent(new ByteArrayInputStream(payload), "payload.txt")));
@@ -136,13 +123,10 @@ class AsicHandlerTest {
 
         final ExecutorService executor = Executors.newFixedThreadPool(threads);
 
-        final EncryptedAsicWriter encryptedAsicWriter = getEncryptedAsicWriter(executor);
-        final EncryptedAsicReader encryptedAsicReader = getEncryptedAsicReader(executor);
-
         final AsicHandler asicHandler = AsicHandler.builder()
             .withPrivatNokkel(getPrivateKeyResource("/bob.key"))
-            .withEncryptedAsicWriter(encryptedAsicWriter)
-            .withEncryptedAsicReader(encryptedAsicReader)
+            .withKeyStoreHolder(getKeystoreHolder())
+            .withExecutorService(executor)
             .build();
 
 
@@ -189,20 +173,12 @@ class AsicHandlerTest {
         executor.shutdownNow();
     }
 
-    private EncryptedAsicReaderImpl getEncryptedAsicReader(ExecutorService executor) {
-        return new EncryptedAsicReaderImpl(executor, new DecryptionStreamServiceImpl());
-    }
-
-    private EncryptedAsicWriterImpl getEncryptedAsicWriter(ExecutorService executor) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
-        KeyStore keyStore = getKeyStore();
-        return new EncryptedAsicWriterImpl(new PipedEncryptionServiceImpl(executor),
-            executor,
-            new SignatureHelperProviderImpl(KeystoreHolder.builder().withKeyAlias("et alias")
-                .withKeyPassword("PASSWORD")
-                .withKeyStorePassword("PASSWORD")
-                .withKeyStore(keyStore)
-                .build())
-        );
+    private KeystoreHolder getKeystoreHolder() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+        return KeystoreHolder.builder().withKeyAlias("et alias")
+            .withKeyPassword("PASSWORD")
+            .withKeyStorePassword("PASSWORD")
+            .withKeyStore(getKeyStore())
+            .build();
     }
 
     private KeyStore getKeyStore() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
