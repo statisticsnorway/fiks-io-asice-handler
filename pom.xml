@@ -42,7 +42,6 @@
         <logback.version>1.2.3</logback.version>
         <slf4j.version>1.7.28</slf4j.version>
         <junit-platform-commons.version>1.5.2</junit-platform-commons.version>
-        <fiks-io-commons.version>1.2.0</fiks-io-commons.version>
         <guava.version>28.1-jre</guava.version>
         <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -84,11 +83,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>no.ks.fiks</groupId>
-            <artifactId>fiks-io-commons</artifactId>
-            <version>${fiks-io-commons.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
