@@ -11,6 +11,9 @@ import no.ks.fiks.io.asice.write.EncryptedAsicWriterImpl;
 import java.security.PrivateKey;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * Convenience class that makes it easier to setup a new {@link AsicHandler}.
+ */
 public final class AsicHandlerBuilder {
     private static final String MISSING_PROPERTY_FORMAT = "\"%s\" er ikke satt";
     private PrivateKey privatNokkel;
@@ -43,6 +46,6 @@ public final class AsicHandlerBuilder {
         Preconditions.checkNotNull(privatNokkel, MISSING_PROPERTY_FORMAT, "privatNokkel");
         Preconditions.checkNotNull(executorService, MISSING_PROPERTY_FORMAT, "executorService");
         Preconditions.checkNotNull(keystoreHolder, MISSING_PROPERTY_FORMAT, "keystoreHolder");
-        return new AsicHandler(privatNokkel, new EncryptedAsicWriterImpl(new PipedEncryptionServiceImpl(executorService), executorService, new SignatureHelperProviderImpl(keystoreHolder)), new EncryptedAsicReaderImpl(executorService, new DecryptionStreamServiceImpl()));
+        return new AsicHandlerImpl(privatNokkel, new EncryptedAsicWriterImpl(new PipedEncryptionServiceImpl(executorService), executorService, new SignatureHelperProviderImpl(keystoreHolder)), new EncryptedAsicReaderImpl(executorService, new DecryptionStreamServiceImpl()));
     }
 }
