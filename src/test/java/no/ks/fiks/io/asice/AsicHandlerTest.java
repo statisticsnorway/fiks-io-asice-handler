@@ -47,27 +47,61 @@ class AsicHandlerTest {
 
         final ExecutorService executor = Executors.newFixedThreadPool(2);
 
-        final AsicHandler asicHandler = AsicHandler.builder()
-            .withPrivatNokkel(getPrivateKeyResource("/bob.key"))
-            .withKeyStoreHolder(getKeystoreHolder())
-            .withExecutorService(executor)
-            .build();
+        try {
+            final AsicHandler asicHandler = AsicHandler.builder()
+                .withPrivatNokkel(getPrivateKeyResource("/bob.key"))
+                .withKeyStoreHolder(getKeystoreHolder())
+                .withExecutorService(executor)
+                .build();
 
-        byte[] plaintext = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
-        InputStream encrypt = asicHandler.encrypt(
-            getPublicCertResource("bob.cert"),
-            singletonList(new StreamContent(new ByteArrayInputStream(plaintext), "payload.bin")));
-        log.info("started reading");
-        byte[] encrypted = IOUtils.toByteArray(encrypt);
-        log.info("done reading");
-        encrypt.close();
+            byte[] plaintext = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
+            InputStream encrypt = asicHandler.encrypt(
+                getPublicCertResource("bob.cert"),
+                singletonList(new StreamContent(new ByteArrayInputStream(plaintext), "payload.bin")));
+            log.info("started reading");
+            byte[] encrypted = IOUtils.toByteArray(encrypt);
+            log.info("done reading");
+            encrypt.close();
 
-        //den krypterte filen skal nødvendigvis være lengre enn plaintext
-        assertTrue(encrypted.length > plaintext.length);
+            //den krypterte filen skal nødvendigvis være lengre enn plaintext
+            assertTrue(encrypted.length > plaintext.length);
 
-        //verifiser at plaintext payloaden ikke finnes i den krypterte filen
-        assertEquals(-1, Bytes.indexOf(encrypted, plaintext));
-        executor.shutdownNow();
+            //verifiser at plaintext payloaden ikke finnes i den krypterte filen
+            assertEquals(-1, Bytes.indexOf(encrypted, plaintext));
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    @DisplayName("Verifiser at payload blir kryptert også uten privat nøkkel")
+    void testKrypterStreamUtenPrivatNokkel() throws Exception {
+
+        final ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        try {
+            final AsicHandler asicHandler = AsicHandler.builder()
+                .withKeyStoreHolder(getKeystoreHolder())
+                .withExecutorService(executor)
+                .build();
+
+            byte[] plaintext = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
+            InputStream encrypt = asicHandler.encrypt(
+                getPublicCertResource("bob.cert"),
+                singletonList(new StreamContent(new ByteArrayInputStream(plaintext), "payload.bin")));
+            log.info("started reading");
+            byte[] encrypted = IOUtils.toByteArray(encrypt);
+            log.info("done reading");
+            encrypt.close();
+
+            //den krypterte filen skal nødvendigvis være lengre enn plaintext
+            assertTrue(encrypted.length > plaintext.length);
+
+            //verifiser at plaintext payloaden ikke finnes i den krypterte filen
+            assertEquals(-1, Bytes.indexOf(encrypted, plaintext));
+        } finally {
+            executor.shutdownNow();
+        }
     }
 
     @Test
