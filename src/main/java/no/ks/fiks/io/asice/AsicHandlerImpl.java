@@ -17,6 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Implementation of AsicE handling
  */
 class AsicHandlerImpl implements AsicHandler {
+    static final String ERROR_MISSING_PRIVATE_KEY = "Privatnøkkel er ikke definert. Kan ikke dekryptere";
     private final PrivateKey privatNokkel;
     private final EncryptedAsicWriter encryptedAsicWriter;
     private final EncryptedAsicReader encryptedAsicReader;
@@ -24,7 +25,6 @@ class AsicHandlerImpl implements AsicHandler {
     AsicHandlerImpl(final PrivateKey privatNokkel,
                     final EncryptedAsicWriter encryptedAsicWriter,
                     final EncryptedAsicReader encryptedAsicReader) {
-        checkNotNull(privatNokkel);
         this.privatNokkel = privatNokkel;
 
         checkNotNull(encryptedAsicWriter);
@@ -43,12 +43,18 @@ class AsicHandlerImpl implements AsicHandler {
 
     @Override
     public ZipInputStream decrypt(final InputStream encryptedAsicData) {
+        if(null == privatNokkel) {
+            throw new IllegalStateException(ERROR_MISSING_PRIVATE_KEY);
+        }
         checkNotNull(encryptedAsicData);
         return encryptedAsicReader.decrypt(encryptedAsicData, privatNokkel);
     }
 
     @Override
     public void writeDecrypted(final InputStream encryptedAsicData, final Path targetPath) {
+        if(null == privatNokkel) {
+            throw new IllegalStateException(ERROR_MISSING_PRIVATE_KEY);
+        }
         checkNotNull(encryptedAsicData);
         checkNotNull(targetPath);
         encryptedAsicReader.writeDecryptedToPath(encryptedAsicData, privatNokkel, targetPath);

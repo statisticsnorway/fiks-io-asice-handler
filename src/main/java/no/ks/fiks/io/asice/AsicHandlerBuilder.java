@@ -43,7 +43,6 @@ public final class AsicHandlerBuilder {
     }
 
     public AsicHandler build() {
-        Preconditions.checkNotNull(privatNokkel, MISSING_PROPERTY_FORMAT, "privatNokkel");
         Preconditions.checkNotNull(executorService, MISSING_PROPERTY_FORMAT, "executorService");
         Preconditions.checkNotNull(keystoreHolder, MISSING_PROPERTY_FORMAT, "keystoreHolder");
         return new AsicHandlerImpl(privatNokkel, new EncryptedAsicWriterImpl(new PipedEncryptionServiceImpl(executorService), executorService, new SignatureHelperProviderImpl(keystoreHolder)), new EncryptedAsicReaderImpl(executorService, new DecryptionStreamServiceImpl()));

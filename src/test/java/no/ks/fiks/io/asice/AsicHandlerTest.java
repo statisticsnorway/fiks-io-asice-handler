@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.ks.fiks.io.asice.model.KeystoreHolder;
 import no.ks.fiks.io.asice.model.StreamContent;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.NullInputStream;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMParser;
@@ -110,6 +111,22 @@ class AsicHandlerTest {
         assertTrue(Files.exists(path));
         assertArrayEquals(payload, readBytes(new ZipInputStream(Files.newInputStream(path))).get("payload.txt"));
         executor.shutdownNow();
+    }
+
+    @DisplayName("Kan ikke dekryptere uten at privat nøkkel er oppgitt")
+    @Test
+    void testDekrypterPrivatNokkelMangler() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+        final ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            final AsicHandler asicHandler = AsicHandler.builder()
+                .withExecutorService(executor)
+                .withKeyStoreHolder(getKeystoreHolder())
+                .build();
+            assertThrows(IllegalStateException.class, () -> asicHandler.decrypt(new NullInputStream(1L)));
+            assertThrows(IllegalStateException.class, () -> asicHandler.writeDecrypted(new NullInputStream(1), null), AsicHandlerImpl.ERROR_MISSING_PRIVATE_KEY);
+        } finally {
+            executor.shutdownNow();
+        }
     }
 
     @Test
