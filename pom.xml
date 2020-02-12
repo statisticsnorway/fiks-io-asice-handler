@@ -42,6 +42,7 @@
     <logback.version>1.2.3</logback.version>
     <assertj.version>3.13.2</assertj.version>
     <mockito.version>3.1.1</mockito.version>
+    <jaxb-runtime.version>2.3.2</jaxb-runtime.version>
     <kryptering.version>1.0.7</kryptering.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <junit-platform-commons.version>1.5.2</junit-platform-commons.version>
@@ -83,6 +84,14 @@
       <artifactId>lombok</artifactId>
       <scope>provided</scope>
     </dependency>
+
+    <!-- Added to support building on JDK9+ -->
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>${jaxb-runtime.version}</version>
+    </dependency>
+    <!-- /Added to support building on JDK9+ -->
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
