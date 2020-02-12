@@ -45,7 +45,7 @@
     <jaxb-runtime.version>2.3.2</jaxb-runtime.version>
     <kryptering.version>1.0.7</kryptering.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
-    <junit-platform-commons.version>1.5.2</junit-platform-commons.version>
+    <junit-platform-commons.version>1.6.0</junit-platform-commons.version>
     <junit-jupiter.version>5.5.2</junit-jupiter.version>
   </properties>
   <dependencyManagement>
