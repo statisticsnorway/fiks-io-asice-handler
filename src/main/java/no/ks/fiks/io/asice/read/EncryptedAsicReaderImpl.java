@@ -103,18 +103,16 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
                 zipOutputStream.closeEntry();
             }
 
-            zipOutputStream.finish();
-
             if (!entryAdded)
                 throw new RuntimeException("No entries in asic!");
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
+            closeQuietly(encryptedAsic);
             try {
-                closeQuietly(encryptedAsic);
                 zipOutputStream.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.info("Failed to close stream", e);
             }
         }
     }
