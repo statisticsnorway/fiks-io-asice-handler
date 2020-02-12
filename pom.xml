@@ -45,8 +45,8 @@
     <jaxb-runtime.version>2.3.2</jaxb-runtime.version>
     <kryptering.version>1.0.7</kryptering.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
-    <junit-platform-commons.version>1.6.0</junit-platform-commons.version>
-    <junit-jupiter.version>5.5.2</junit-jupiter.version>
+
+    <junit.version>5.6.0</junit.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -61,6 +61,14 @@
         <version>${lombok.version}</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -99,21 +107,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit-jupiter.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>${junit-jupiter.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-commons</artifactId>
-      <version>${junit-platform-commons.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
