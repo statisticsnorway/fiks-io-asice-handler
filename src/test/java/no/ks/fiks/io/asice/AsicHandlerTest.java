@@ -25,10 +25,7 @@ import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -40,6 +37,102 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 class AsicHandlerTest {
+
+    @Test
+    @DisplayName("Krypter AsicPakke In Parallel With ThreadPool")
+    void testKrypterAsicPakkeInParallelWithThreadPool() throws Exception {
+
+        final ExecutorService executor = Executors.newFixedThreadPool(3);
+        final ExecutorService executorInput = Executors.newFixedThreadPool(30);
+
+        try {
+            final AsicHandler asicHandler = AsicHandler.builder()
+                .withPrivatNokkel(getPrivateKeyResource("/bob.key"))
+                .withKeyStoreHolder(getKeystoreHolder())
+                .withExecutorService(executor)
+                .build();
+            for(int i = 0; i< 25; i++) {
+                executorInput.submit(() -> {
+                    byte[] plaintext = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
+                    InputStream encrypt = asicHandler.encrypt(
+                        getPublicCertResource("bob.cert"),
+                        singletonList(new StreamContent(new ByteArrayInputStream(plaintext), "payload.bin")));
+                    log.info("started reading");
+                    byte[] encrypted = new byte[0];
+                    try {
+                        encrypted = IOUtils.toByteArray(encrypt);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    log.info("done reading");
+                    try {
+                        encrypt.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    //den krypterte filen skal nødvendigvis være lengre enn plaintext
+                    assertTrue(encrypted.length > plaintext.length);
+
+                    //verifiser at plaintext payloaden ikke finnes i den krypterte filen
+                    assertEquals(-1, Bytes.indexOf(encrypted, plaintext));
+                });
+
+            }
+            executorInput.shutdown();
+            assertTrue(executorInput.awaitTermination(120, TimeUnit.SECONDS));
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    @DisplayName("Krypter AsicPakke In Parallel With ForkJoinPool")
+    void testKrypterAsicPakkeInParallelWithForkJoinPool() throws Exception {
+
+        final ExecutorService executor = new ForkJoinPool(2);
+        final ExecutorService executorInput = Executors.newFixedThreadPool(30);
+
+        try {
+            final AsicHandler asicHandler = AsicHandler.builder()
+                .withPrivatNokkel(getPrivateKeyResource("/bob.key"))
+                .withKeyStoreHolder(getKeystoreHolder())
+                .withExecutorService(executor)
+                .build();
+            for(int i = 0; i< 25; i++) {
+                executorInput.submit(() -> {
+                    byte[] plaintext = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
+                    InputStream encrypt = asicHandler.encrypt(
+                        getPublicCertResource("bob.cert"),
+                        singletonList(new StreamContent(new ByteArrayInputStream(plaintext), "payload.bin")));
+                    log.info("started reading");
+                    byte[] encrypted = new byte[0];
+                    try {
+                        encrypted = IOUtils.toByteArray(encrypt);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    log.info("done reading");
+                    try {
+                        encrypt.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    //den krypterte filen skal nødvendigvis være lengre enn plaintext
+                    assertTrue(encrypted.length > plaintext.length);
+
+                    //verifiser at plaintext payloaden ikke finnes i den krypterte filen
+                    assertEquals(-1, Bytes.indexOf(encrypted, plaintext));
+                });
+
+            }
+            executorInput.shutdown();
+            assertTrue(executorInput.awaitTermination(120, TimeUnit.SECONDS));
+        } finally {
+            executor.shutdownNow();
+        }
+    }
 
     @Test
     @DisplayName("Verifiser at payload blir kryptert")

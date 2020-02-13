@@ -17,7 +17,7 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
 
 import static com.google.common.io.Closeables.closeQuietly;
 
@@ -26,6 +26,7 @@ public class EncryptedAsicWriterImpl implements EncryptedAsicWriter {
     private static final Logger log = LoggerFactory.getLogger(EncryptedAsicWriterImpl.class);
     private final PipedEncryptionService pipedEncryptionService;
     private final ExecutorService executor;
+    private final ExecutorService inputExecutor = Executors.newFixedThreadPool(1);
     private final AsicWriterFactory asicWriterFactory = AsicWriterFactory.newFactory(SignatureMethod.CAdES);
     private final SignatureHelperProvider signatureHelperProvider;
 
@@ -36,9 +37,21 @@ public class EncryptedAsicWriterImpl implements EncryptedAsicWriter {
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(signatureHelperProvider);
         this.pipedEncryptionService = pipedEncryptionService;
+        if(executor instanceof ThreadPoolExecutor && ((ThreadPoolExecutor)executor).getMaximumPoolSize() < 2) {
+            throw new RuntimeException("Threadpool needs to have 2 or more threads.");
+        }
+        if(executor instanceof ForkJoinPool && ((ForkJoinPool)executor).getParallelism() < 2) {
+            throw new RuntimeException("Threadpool needs to have 2 or more threads.");
+        }
+        if(executor instanceof ScheduledThreadPoolExecutor) {
+            throw new RuntimeException("Don't use ScheduledThreadPoolExecutor not supported");
+        }
+
         this.executor = executor;
         this.signatureHelperProvider = signatureHelperProvider;
     }
+
+
 
     @Override
     public InputStream createAndEncrypt(X509Certificate x509Certificate, List<Content> contents) {
@@ -47,30 +60,33 @@ public class EncryptedAsicWriterImpl implements EncryptedAsicWriter {
         try {
             if (contents.isEmpty())
                 throw new RuntimeException("Ingen payloads oppgitt, kan ikke kryptere melding");
+            return inputExecutor.submit(() -> {
+                PipedInputStream asicInputStream = new PipedInputStream();
+                final OutputStream asicOutputStream = new PipedOutputStream(asicInputStream);
+                final Map<String, String> mdc = MDC.getCopyOfContextMap();
 
-            PipedInputStream asicInputStream = new PipedInputStream();
-            final OutputStream asicOutputStream = new PipedOutputStream(asicInputStream);
-            final Map<String, String> mdc = MDC.getCopyOfContextMap();
-            executor.execute(() -> {
-                try {
-                    Optional.ofNullable(mdc).ifPresent(m -> MDC.setContextMap(m));
-                    AsicWriter writer = asicWriterFactory.newContainer(asicOutputStream);
-                    contents.forEach(p -> write(writer, p));
-                    writer.setRootEntryName(contents.get(0)
-                        .getFilnavn());
-                    writer.sign(
-                        signatureHelperProvider.provideSignatureHelper());
-                } catch (Exception e) {
-                    log.error("Failed to sign stream", e);
-                    throw new RuntimeException(e);
-                } finally {
-                    MDC.clear();
-                }
-            });
+                executor.execute(() -> {
+                    try {
+                        Optional.ofNullable(mdc).ifPresent(m -> MDC.setContextMap(m));
+                        AsicWriter writer = asicWriterFactory.newContainer(asicOutputStream);
+                        contents.forEach(p -> write(writer, p));
+                        writer.setRootEntryName(contents.get(0)
+                            .getFilnavn());
+                        writer.sign(
+                            signatureHelperProvider.provideSignatureHelper());
+                    } catch (Exception e) {
+                        log.error("Failed to sign stream", e);
+                        throw new RuntimeException(e);
+                    } finally {
+                        MDC.clear();
+                    }
+                });
+                return pipedEncryptionService.encrypt(asicInputStream, x509Certificate);
+            }).get();
 
-
-            return pipedEncryptionService.encrypt(asicInputStream, x509Certificate);
-        } catch (IOException e) {
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Feil under bygging av asic", e);
+        } catch (ExecutionException e) {
             throw new RuntimeException("Feil under bygging av asic", e);
         }
     }
