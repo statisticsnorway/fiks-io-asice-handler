@@ -32,6 +32,11 @@ public final class AsicHandlerBuilder {
         return this;
     }
 
+    /**
+     * Use minimum 2 threads
+     * @param executorService Minimum 2 threads
+     * @return
+     */
     public AsicHandlerBuilder withExecutorService(final ExecutorService executorService) {
         this.executorService = executorService;
         return this;
