@@ -7,7 +7,7 @@
 Wrapper for DIFI's AsicE library
 ## Example
 ```java
-final ExecutorService executor = // create Executor service to be used internally 
+final ExecutorService executor = // create Executor service to be used internally (minimum 2 threads)
 final PrivateKey privateKey = // a java.security.PrivateKey instance to be used for decryption 
 final KeyStoreHolder keyStoreHolder = KeyStoreHolder.builder()
     .withKeyStore(keyStore) // a java.security.KeyStore to be used to get encryption certificate from
