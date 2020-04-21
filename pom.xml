@@ -44,7 +44,8 @@
     <logback.version>1.2.3</logback.version>
     <assertj.version>3.15.0</assertj.version>
     <mockito.version>3.3.3</mockito.version>
-    <kryptering.version>1.0.8</kryptering.version>
+    <kryptering.version>1.0.9</kryptering.version>
+    <bouncycastle.version>1.65</bouncycastle.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
   </properties>
   <dependencyManagement>
@@ -67,6 +68,11 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk15on</artifactId>
+        <version>${bouncycastle.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -76,14 +82,18 @@
       <version>${slf4j.version}</version>
     </dependency>
     <dependency>
-      <groupId>no.difi.commons</groupId>
-      <artifactId>commons-asic</artifactId>
-      <version>${difi-commons-asic.version}</version>
-    </dependency>
-    <dependency>
       <groupId>no.ks.fiks</groupId>
       <artifactId>kryptering</artifactId>
       <version>${kryptering.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk15on</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>no.difi.commons</groupId>
+      <artifactId>commons-asic</artifactId>
+      <version>${difi-commons-asic.version}</version>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
