@@ -20,11 +20,11 @@
   </scm>
   <properties>
     <difi-commons-asic.version>0.9.4</difi-commons-asic.version>
-    <bouncycastle.version>1.66</bouncycastle.version>
+    <bouncycastle.version>1.69</bouncycastle.version>
     <lombok.version>1.18.20</lombok.version>
     <assertj.version>3.20.2</assertj.version>
     <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
-    <kryptering.version>1.0.10</kryptering.version>
+    <kryptering.version>1.1.0</kryptering.version>
     <mockito.version>3.11.2</mockito.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>${java.version}</maven.compiler.source>
