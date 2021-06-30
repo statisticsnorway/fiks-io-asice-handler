@@ -9,7 +9,7 @@
   </parent>
   <groupId>no.ks.fiks</groupId>
   <artifactId>fiks-io-asice-handler</artifactId>
-  <version>${revision}${changelist}</version>
+  <version>1.1.0-SNAPSHOT</version>
   <name>FIKS IO ASICE handler</name>
   <description>Bibliotek som inneholder funksjonalitet for streaming av ASIC-E pakker</description>
   <url>https://github.com/ks-no/fiks-io-asice-handler</url>
@@ -18,27 +18,15 @@
     <developerConnection>scm:git:git@github.com:ks-no/fiks-io-asice-handler.git</developerConnection>
     <url>https://github.com/ks-no/fiks-io-asice-handler</url>
   </scm>
-  <distributionManagement>
-    <repository>
-      <id>oss.sonatype.org</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-    <snapshotRepository>
-      <id>oss.sonatype.org</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-    </snapshotRepository>
-  </distributionManagement>
   <properties>
     <difi-commons-asic.version>0.9.3</difi-commons-asic.version>
     <bouncycastle.version>1.66</bouncycastle.version>
     <lombok.version>1.18.20</lombok.version>
-    <changelist>-SNAPSHOT</changelist>
     <assertj.version>3.20.2</assertj.version>
     <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
     <kryptering.version>1.0.10</kryptering.version>
     <mockito.version>3.11.2</mockito.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <revision>1.0.6</revision>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <junit.version>5.7.2</junit.version>
     <java.version>1.8</java.version>
