@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class AsicHandlerBuilderTest {
@@ -32,7 +32,7 @@ class AsicHandlerBuilderTest {
             .withKeyStoreHolder(getKeystoreHolder())
             .build();
         assertThat(asicHandler).isNotNull();
-        verifyZeroInteractions(executorService, privateKey);
+        verifyNoInteractions(executorService, privateKey);
     }
 
     @DisplayName("Tester håndtering av null")
