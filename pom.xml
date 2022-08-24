@@ -82,6 +82,12 @@
       <groupId>no.difi.commons</groupId>
       <artifactId>commons-asic</artifactId>
       <version>${difi-commons-asic.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcpkix-jdk15on</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
