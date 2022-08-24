@@ -20,11 +20,11 @@
   </scm>
   <properties>
     <difi-commons-asic.version>0.11.0</difi-commons-asic.version>
-    <bouncycastle.version>1.70</bouncycastle.version>
+    <bouncycastle.version>1.71.1</bouncycastle.version>
     <lombok.version>1.18.24</lombok.version>
     <assertj.version>3.23.1</assertj.version>
     <jaxb-runtime.version>2.3.6</jaxb-runtime.version>
-    <kryptering.version>1.1.2</kryptering.version>
+    <kryptering.version>1.2.0</kryptering.version>
     <mockito.version>4.7.0</mockito.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -58,7 +58,7 @@
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
-        <artifactId>bcpkix-jdk15on</artifactId>
+        <artifactId>bcpkix-jdk18on</artifactId>
         <version>${bouncycastle.version}</version>
       </dependency>
     </dependencies>
@@ -76,7 +76,7 @@
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcpkix-jdk15on</artifactId>
+      <artifactId>bcpkix-jdk18on</artifactId>
     </dependency>
     <dependency>
       <groupId>no.difi.commons</groupId>
