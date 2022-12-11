@@ -10,7 +10,7 @@
     </parent>
     <groupId>no.ks.fiks</groupId>
     <artifactId>fiks-io-asice-handler</artifactId>
-    <version>1.2.3-SNAPSHOT</version>
+    <version>${revision}</version>
     <name>FIKS IO ASICE handler</name>
     <description>Bibliotek som inneholder funksjonalitet for streaming av ASIC-E pakker</description>
     <url>https://github.com/ks-no/fiks-io-asice-handler</url>
@@ -20,6 +20,7 @@
         <url>https://github.com/ks-no/fiks-io-asice-handler</url>
     </scm>
     <properties>
+        <revision>LOCAL-SNAPSHOT</revision>
         <difi-commons-asic.version>0.11.0</difi-commons-asic.version>
         <bouncycastle.version>1.71.1</bouncycastle.version>
         <lombok.version>1.18.24</lombok.version>
@@ -151,6 +152,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+    </repositories>
 
     <profiles>
         <profile>
