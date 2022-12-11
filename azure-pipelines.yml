@@ -70,6 +70,16 @@ jobs:
       # See https://github.com/statisticsnorway/azure-pipelines-templates/blob/master/maven/task-cache.yml
       - template: maven/task-cache.yml@templates
 
+      - task: Maven@3
+        displayName: Maven verify
+        inputs:
+          goals: 'verify'
+          options: '-X --batch-mode $(MAVEN_OPTS)'
+          publishJUnitResults: false
+          mavenPomFile: 'pom.xml'
+          javaHomeOption: 'JDKVersion'
+          jdkArchitectureOption: 'x64'
+
       # Deploy artifact
       # See https://github.com/statisticsnorway/azure-pipelines-templates/blob/master/maven/task-install-and-deploy-to-gar.yml
       - template: maven/task-install-and-deploy-to-gar.yml@templates

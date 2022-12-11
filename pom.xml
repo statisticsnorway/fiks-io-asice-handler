@@ -155,6 +155,30 @@
 
     <repositories>
         <repository>
+            <id>artifact-registry</id>
+            <url>
+                artifactregistry://europe-north1-maven.pkg.dev/artifact-registry-14da/maven-releases
+            </url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>artifact-registry-snapshot</id>
+            <url>
+                artifactregistry://europe-north1-maven.pkg.dev/artifact-registry-14da/maven-snapshots
+            </url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
         </repository>
