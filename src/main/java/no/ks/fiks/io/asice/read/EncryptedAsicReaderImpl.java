@@ -89,19 +89,18 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
 
         try {
             reader = asicReaderFactory.open(inputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        boolean entryAdded = false;
-        try {
+
+            boolean entryAdded = false;
+
             String filnavn;
             while ((filnavn = reader.getNextFile()) != null) {
                 entryAdded = true;
                 zipOutputStream.putNextEntry(new ZipEntry(filnavn));
                 reader.writeFile(zipOutputStream);
                 zipOutputStream.closeEntry();
-                zipOutputStream.flush();
             }
+            zipOutputStream.flush();
+            log.info("zipOutputStream.flush()");
 
             if (!entryAdded)
                 throw new RuntimeException("No entries in asic!");
@@ -109,13 +108,6 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
             throw new RuntimeException(e);
         } finally {
             closeQuietly(encryptedAsic);
-/*
-            try {
-                zipOutputStream.close();
-            } catch (IOException e) {
-                log.info("Failed to close stream", e);
-            }
-*/
         }
     }
 
