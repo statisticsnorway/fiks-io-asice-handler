@@ -43,10 +43,9 @@ resources:
       # with access to the template repository.
       endpoint: 'github-Barnevernsregisteret'
 
-# Job which runs mvn test and verify, Sonar Analysis (if branch is master), mvn install,
-# builds Docker image, pushes this to GCR and checks for any image vulnerabilities
+# Job which runs mvn test and verify, Sonar Analysis, mvn deploy
 jobs:
-  - job: buildTestAndDeploySnapshot
+  - job: buildTestAndDeployArtifact
     displayName: 'Test/build app and deploy artifact'
 
     # Job condition: Run these jobs on any branch, also tags
@@ -62,13 +61,12 @@ jobs:
           jdkArchitectureOption: 'x64'
           jdkSourceOption: 'PreInstalled'
 
+      # Maven caching to speed up pipeline build time
+      - template: maven/task-cache.yml@templates
+
       # Authenticate to google artifact registry
       # See https://github.com/statisticsnorway/azure-pipelines-templates/blob/master/maven/task-authenticate-gar.yml
       - template: maven/task-authenticate-gar.yml@templates
-
-      # Cache the maven build
-      # See https://github.com/statisticsnorway/azure-pipelines-templates/blob/master/maven/task-cache.yml
-      - template: maven/task-cache.yml@templates
 
       - task: Maven@3
         displayName: Maven verify
