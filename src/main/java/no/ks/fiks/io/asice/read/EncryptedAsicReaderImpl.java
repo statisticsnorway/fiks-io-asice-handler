@@ -78,7 +78,8 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
     }
 
     private void decrypt(final InputStream encryptedAsic, final PrivateKey privateKey, final ZipOutputStream zipOutputStream) {
-        InputStream inputStream = decryptionStreamService.decrypterStream(encryptedAsic, privateKey);
+        CMSKrypteringImpl cmsKryptering = new CMSKrypteringImpl();
+        InputStream inputStream = cmsKryptering.dekrypterData(encryptedAsic, privateKey);
         decryptElementer(encryptedAsic, zipOutputStream, inputStream);
     }
 
