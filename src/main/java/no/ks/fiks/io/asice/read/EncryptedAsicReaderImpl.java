@@ -99,7 +99,6 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
                 zipOutputStream.closeEntry();
                 zipOutputStream.flush();
             }
-            log.info("zipOutputStream.flush()");
 
             if (!entryAdded)
                 throw new RuntimeException("No entries in asic!");
