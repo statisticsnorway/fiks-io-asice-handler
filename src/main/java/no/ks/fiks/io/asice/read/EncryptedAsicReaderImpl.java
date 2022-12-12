@@ -78,9 +78,7 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
     }
 
     private void decrypt(final InputStream encryptedAsic, final PrivateKey privateKey, final ZipOutputStream zipOutputStream) {
-        CMSKrypteringImpl cmsKryptering = new CMSKrypteringImpl();
-
-        InputStream inputStream = cmsKryptering.dekrypterData(encryptedAsic, privateKey);
+        InputStream inputStream = decryptionStreamService.decrypterStream(encryptedAsic, privateKey);
         decryptElementer(encryptedAsic, zipOutputStream, inputStream);
     }
 
@@ -119,8 +117,7 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
         checkNotNull(zipOutputStream);
         checkNotNull(privatNokkel);
 
-        //InputStream inputStream = decryptionStreamService.decrypterStream(encryptedAsic, privatNokkel);
-        try (InputStream inputStream = new CMSKrypteringImpl().dekrypterData(encryptedAsic, privatNokkel)) {
+        try (InputStream inputStream = decryptionStreamService.decrypterStream(encryptedAsic, privatNokkel)) {
             decryptElementer(encryptedAsic, zipOutputStream, inputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
