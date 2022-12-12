@@ -118,7 +118,12 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
         checkNotNull(encryptedAsic);
         checkNotNull(zipOutputStream);
         checkNotNull(privatNokkel);
-        InputStream inputStream = decryptionStreamService.decrypterStream(encryptedAsic, privatNokkel);
-        decryptElementer(encryptedAsic, zipOutputStream, inputStream);
+
+        //InputStream inputStream = decryptionStreamService.decrypterStream(encryptedAsic, privatNokkel);
+        try (InputStream inputStream = new CMSKrypteringImpl().dekrypterData(encryptedAsic, privatNokkel)) {
+            decryptElementer(encryptedAsic, zipOutputStream, inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
