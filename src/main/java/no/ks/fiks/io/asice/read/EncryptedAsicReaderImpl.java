@@ -116,10 +116,7 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
         checkNotNull(zipOutputStream);
         checkNotNull(privatNokkel);
 
-        try (InputStream inputStream = decryptionStreamService.decrypterStream(encryptedAsic, privatNokkel)) {
-            decryptElementer(encryptedAsic, zipOutputStream, inputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        InputStream inputStream = decryptionStreamService.decrypterStream(encryptedAsic, privatNokkel);
+        decryptElementer(encryptedAsic, zipOutputStream, inputStream);
     }
 }

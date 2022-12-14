@@ -9,7 +9,7 @@
         <version>1.0.13</version>
     </parent>
     <groupId>no.ssb.barn</groupId>
-    <artifactId>fiks-io-asice-handler-9</artifactId>
+    <artifactId>fiks-io-asice-handler-10</artifactId>
     <version>${revision}</version>
     <name>FIKS IO ASICE handler</name>
     <description>Bibliotek som inneholder funksjonalitet for streaming av ASIC-E pakker</description>
