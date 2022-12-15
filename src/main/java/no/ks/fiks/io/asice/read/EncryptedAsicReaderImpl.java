@@ -46,7 +46,7 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
             PipedOutputStream out = new PipedOutputStream();
             PipedInputStream pipedInputStream = new PipedInputStream(out);
             final Map<String, String> mdc = MDC.getCopyOfContextMap();
-            //executorService.execute(() -> {
+            executorService.execute(() -> {
                 Optional.ofNullable(mdc).ifPresent(MDC::setContextMap);
                 try (ZipOutputStream zipOutputStream = new ZipOutputStream(out)) {
                     decrypt(encryptedAsicData, zipOutputStream, privateKey);
@@ -56,7 +56,7 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
                 } finally {
                     MDC.clear();
                 }
-            //});
+            });
 
             return new ZipInputStream(pipedInputStream);
         } catch (IOException e) {
@@ -97,6 +97,7 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
                 zipOutputStream.putNextEntry(new ZipEntry(filnavn));
                 reader.writeFile(zipOutputStream);
                 zipOutputStream.closeEntry();
+                zipOutputStream.flush();
             }
 
             if (!entryAdded)
