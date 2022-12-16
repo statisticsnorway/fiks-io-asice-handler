@@ -51,6 +51,8 @@ public class EncryptedAsicWriterImpl implements EncryptedAsicWriter {
         this.signatureHelperProvider = signatureHelperProvider;
     }
 
+
+
     @Override
     public InputStream createAndEncrypt(X509Certificate x509Certificate, List<Content> contents) {
         Preconditions.checkNotNull(x509Certificate);
@@ -65,27 +67,26 @@ public class EncryptedAsicWriterImpl implements EncryptedAsicWriter {
 
                 executor.execute(() -> {
                     try {
-                        Optional.ofNullable(mdc).ifPresent(MDC::setContextMap);
+                        Optional.ofNullable(mdc).ifPresent(m -> MDC.setContextMap(m));
                         AsicWriter writer = asicWriterFactory.newContainer(asicOutputStream);
                         contents.forEach(p -> write(writer, p));
-                        writer.setRootEntryName(contents.get(0).getFilnavn());
-                        writer.sign(signatureHelperProvider.provideSignatureHelper());
+                        writer.setRootEntryName(contents.get(0)
+                            .getFilnavn());
+                        writer.sign(
+                            signatureHelperProvider.provideSignatureHelper());
                     } catch (Exception e) {
                         log.error("Failed to sign stream", e);
                         throw new RuntimeException(e);
                     } finally {
-                        try {
-                            asicOutputStream.close();
-                        } catch (IOException e) {
-                            log.warn("Fikk ikke lukket strøm");
-                        }
                         MDC.clear();
                     }
                 });
                 return pipedEncryptionService.encrypt(asicInputStream, x509Certificate);
             }).get();
 
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Feil under bygging av asic", e);
+        } catch (ExecutionException e) {
             throw new RuntimeException("Feil under bygging av asic", e);
         }
     }
