@@ -11,7 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.PrivateKey;
@@ -44,15 +50,15 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
         checkNotNull(privateKey);
         try {
             PipedOutputStream out = new PipedOutputStream();
-            PipedInputStream pipedInputStream = new PipedInputStream(out);
+            InputStream pipedInputStream = new BufferedInputStream(new PipedInputStream(out));
             final Map<String, String> mdc = MDC.getCopyOfContextMap();
             executorService.execute(() -> {
                 Optional.ofNullable(mdc).ifPresent(MDC::setContextMap);
-                try (ZipOutputStream zipOutputStream = new ZipOutputStream(out)) {
+                try (ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(out))) {
                     decrypt(encryptedAsicData, zipOutputStream, privateKey);
                 } catch (IOException e) {
                     log.warn("Failed to decrypt stream", e);
-                    //throw new RuntimeException(e);
+                    throw new RuntimeException(e);
                 } finally {
                     MDC.clear();
                 }
@@ -97,7 +103,6 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
                 zipOutputStream.putNextEntry(new ZipEntry(filnavn));
                 reader.writeFile(zipOutputStream);
                 zipOutputStream.closeEntry();
-                //zipOutputStream.flush();
             }
 
             if (!entryAdded)
