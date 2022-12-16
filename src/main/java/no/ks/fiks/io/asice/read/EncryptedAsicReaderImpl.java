@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +49,7 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
         checkNotNull(privateKey);
         try {
             PipedOutputStream out = new PipedOutputStream();
-            InputStream pipedInputStream = new BufferedInputStream(new PipedInputStream(out));
+            InputStream pipedInputStream = new PipedInputStream(out);
             final Map<String, String> mdc = MDC.getCopyOfContextMap();
             executorService.execute(() -> {
                 Optional.ofNullable(mdc).ifPresent(MDC::setContextMap);

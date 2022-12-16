@@ -64,14 +64,13 @@ public class EncryptedAsicWriterImpl implements EncryptedAsicWriter {
                 final Map<String, String> mdc = MDC.getCopyOfContextMap();
 
                 executor.execute(() -> {
-                    try (OutputStream asicOutputStream = new BufferedOutputStream(new PipedOutputStream(asicInputStream))) {
+                    try (OutputStream asicOutputStream = new PipedOutputStream(asicInputStream)) {
                         Optional.ofNullable(mdc).ifPresent(MDC::setContextMap);
                         AsicWriter writer = asicWriterFactory.newContainer(asicOutputStream);
                         contents.forEach(p -> write(writer, p));
-                        writer.setRootEntryName(contents.get(0)
-                            .getFilnavn());
-                        writer.sign(
-                            signatureHelperProvider.provideSignatureHelper());
+
+                        writer.setRootEntryName(contents.get(0).getFilnavn());
+                        writer.sign(signatureHelperProvider.provideSignatureHelper());
                     } catch (Exception e) {
                         log.error("Failed to sign stream", e);
                         throw new RuntimeException(e);
