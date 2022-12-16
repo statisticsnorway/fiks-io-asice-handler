@@ -64,7 +64,7 @@ public class EncryptedAsicWriterImpl implements EncryptedAsicWriter {
                 final Map<String, String> mdc = MDC.getCopyOfContextMap();
 
                 executor.execute(() -> {
-                    try (OutputStream asicOutputStream = new BufferedOutputStream(new PipedOutputStream(asicInputStream))) {
+                    try (OutputStream asicOutputStream = new PipedOutputStream(asicInputStream)) {
                         Optional.ofNullable(mdc).ifPresent(MDC::setContextMap);
                         AsicWriter writer = asicWriterFactory.newContainer(asicOutputStream);
                         contents.forEach(p -> write(writer, p));
