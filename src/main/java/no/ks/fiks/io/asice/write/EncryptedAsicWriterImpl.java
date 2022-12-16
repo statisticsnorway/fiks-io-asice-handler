@@ -37,19 +37,20 @@ public class EncryptedAsicWriterImpl implements EncryptedAsicWriter {
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(signatureHelperProvider);
         this.pipedEncryptionService = pipedEncryptionService;
-        if (executor instanceof ThreadPoolExecutor && ((ThreadPoolExecutor) executor).getMaximumPoolSize() < 2) {
+        if(executor instanceof ThreadPoolExecutor && ((ThreadPoolExecutor)executor).getMaximumPoolSize() < 2) {
             throw new RuntimeException("Threadpool needs to have 2 or more threads.");
         }
-        if (executor instanceof ForkJoinPool && ((ForkJoinPool) executor).getParallelism() < 2) {
+        if(executor instanceof ForkJoinPool && ((ForkJoinPool)executor).getParallelism() < 2) {
             throw new RuntimeException("Threadpool needs to have 2 or more threads.");
         }
-        if (executor instanceof ScheduledThreadPoolExecutor) {
+        if(executor instanceof ScheduledThreadPoolExecutor) {
             throw new RuntimeException("Don't use ScheduledThreadPoolExecutor not supported");
         }
 
         this.executor = executor;
         this.signatureHelperProvider = signatureHelperProvider;
     }
+
 
 
     @Override
@@ -61,16 +62,18 @@ public class EncryptedAsicWriterImpl implements EncryptedAsicWriter {
                 throw new RuntimeException("Ingen payloads oppgitt, kan ikke kryptere melding");
             return inputExecutor.submit(() -> {
                 PipedInputStream asicInputStream = new PipedInputStream();
+                final OutputStream asicOutputStream = new PipedOutputStream(asicInputStream);
                 final Map<String, String> mdc = MDC.getCopyOfContextMap();
 
                 executor.execute(() -> {
-                    try (OutputStream asicOutputStream = new PipedOutputStream(asicInputStream)) {
-                        Optional.ofNullable(mdc).ifPresent(MDC::setContextMap);
+                    try {
+                        Optional.ofNullable(mdc).ifPresent(m -> MDC.setContextMap(m));
                         AsicWriter writer = asicWriterFactory.newContainer(asicOutputStream);
                         contents.forEach(p -> write(writer, p));
-
-                        writer.setRootEntryName(contents.get(0).getFilnavn());
-                        writer.sign(signatureHelperProvider.provideSignatureHelper());
+                        writer.setRootEntryName(contents.get(0)
+                            .getFilnavn());
+                        writer.sign(
+                            signatureHelperProvider.provideSignatureHelper());
                     } catch (Exception e) {
                         log.error("Failed to sign stream", e);
                         throw new RuntimeException(e);
@@ -81,7 +84,9 @@ public class EncryptedAsicWriterImpl implements EncryptedAsicWriter {
                 return pipedEncryptionService.encrypt(asicInputStream, x509Certificate);
             }).get();
 
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Feil under bygging av asic", e);
+        } catch (ExecutionException e) {
             throw new RuntimeException("Feil under bygging av asic", e);
         }
     }
