@@ -17,9 +17,7 @@ import java.nio.file.Path;
 import java.security.PrivateKey;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -48,8 +46,7 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
             PipedOutputStream out = new PipedOutputStream();
             PipedInputStream pipedInputStream = new PipedInputStream(out);
             final Map<String, String> mdc = MDC.getCopyOfContextMap();
-
-            Future<?> future = executorService.submit(() -> {
+            executorService.execute(() -> {
                 Optional.ofNullable(mdc).ifPresent(MDC::setContextMap);
                 try (ZipOutputStream zipOutputStream = new ZipOutputStream(out)) {
                     decrypt(encryptedAsicData, zipOutputStream, privateKey);
@@ -60,12 +57,6 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
                     MDC.clear();
                 }
             });
-
-            try {
-                future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
 
             return new ZipInputStream(pipedInputStream);
         } catch (IOException e) {
