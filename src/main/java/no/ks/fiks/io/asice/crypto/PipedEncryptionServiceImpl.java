@@ -37,22 +37,32 @@ public class PipedEncryptionServiceImpl implements PipedEncryptionService {
         final Map<String, String> mdc = MDC.getCopyOfContextMap();
         try {
             final PipedInputStream kryptertInputStream = new PipedInputStream();
+            final PipedOutputStream kryptertOutputStream = new PipedOutputStream(kryptertInputStream);
 
             executor.execute(() -> {
                 Optional.ofNullable(mdc).ifPresent(MDC::setContextMap);
-                try (OutputStream krypteringStream = cmsKryptoHandler.getKrypteringOutputStream(
-                    new PipedOutputStream(kryptertInputStream), mottakerSertifikat)) {
+                try (OutputStream krypteringStream = cmsKryptoHandler.getKrypteringOutputStream(kryptertOutputStream, mottakerSertifikat)) {
                     IOUtils.copy(pipedInputStream, krypteringStream);
                 } catch (IOException e) {
-                    log.warn("Failed to decrypt stream", e);
+                    log.error("Failed to copy stream", e);
+                    try {
+                        kryptertInputStream.close();
+                    } catch (IOException ex) {
+                        log.warn("Fikk ikke lukket strøm");
+                    }
                     throw new RuntimeException(e);
                 } finally {
+                    try {
+                        kryptertOutputStream.close();
+                    } catch (IOException e) {
+                        log.error("Uventet feil under cleanup", e);
+                    }
                     MDC.clear();
                 }
             });
-
             return kryptertInputStream;
-        } catch (Throwable e) {
+
+        } catch (IOException e) {
             log.warn("Feilet under kryptering", e);
             throw new RuntimeException("Kryptering feilet", e);
         }
