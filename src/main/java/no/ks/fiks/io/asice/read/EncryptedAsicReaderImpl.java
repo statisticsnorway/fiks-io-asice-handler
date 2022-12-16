@@ -51,8 +51,8 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
                 try (ZipOutputStream zipOutputStream = new ZipOutputStream(out)) {
                     decrypt(encryptedAsicData, zipOutputStream, privateKey);
                 } catch (IOException e) {
-                    log.error("Failed to decrypt stream", e);
-                    throw new RuntimeException(e);
+                    log.warn("Failed to decrypt stream", e);
+                    //throw new RuntimeException(e);
                 } finally {
                     MDC.clear();
                 }
