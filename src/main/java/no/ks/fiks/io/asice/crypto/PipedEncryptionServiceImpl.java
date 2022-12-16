@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutorService;
 
 public class PipedEncryptionServiceImpl implements PipedEncryptionService {
 
-    private static Logger log = LoggerFactory.getLogger(PipedEncryptionServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PipedEncryptionServiceImpl.class);
 
     private final CMSStreamKryptering cmsKryptoHandler = new CMSKrypteringImpl();
     private final ExecutorService executor;
@@ -37,37 +37,24 @@ public class PipedEncryptionServiceImpl implements PipedEncryptionService {
         final Map<String, String> mdc = MDC.getCopyOfContextMap();
         try {
             final PipedInputStream kryptertInputStream = new PipedInputStream();
-            final PipedOutputStream kryptertOutputStream = new PipedOutputStream(kryptertInputStream);
 
             executor.execute(() -> {
-                Optional.ofNullable(mdc).ifPresent(m -> MDC.setContextMap(m));
-                try (OutputStream krypteringStream = cmsKryptoHandler.getKrypteringOutputStream(kryptertOutputStream, mottakerSertifikat)) {
+                Optional.ofNullable(mdc).ifPresent(MDC::setContextMap);
+                try (OutputStream krypteringStream = cmsKryptoHandler.getKrypteringOutputStream(
+                    new PipedOutputStream(kryptertInputStream), mottakerSertifikat)) {
                     IOUtils.copy(pipedInputStream, krypteringStream);
                 } catch (IOException e) {
-                    log.error("Failed to copy stream", e);
-                    try {
-                        kryptertInputStream.close();
-                    } catch (IOException ex) {
-                        log.warn("Fikk ikke lukket strøm");
-                    }
+                    log.warn("Failed to decrypt stream", e);
                     throw new RuntimeException(e);
                 } finally {
-                    try {
-                        kryptertOutputStream.close();
-                    } catch (IOException e) {
-                        log.error("Uventet feil under cleanup", e);
-                    }
                     MDC.clear();
                 }
             });
+
             return kryptertInputStream;
-
-
-        } catch (IOException e) {
+        } catch (Throwable e) {
             log.warn("Feilet under kryptering", e);
             throw new RuntimeException("Kryptering feilet", e);
         }
-
-
     }
 }
