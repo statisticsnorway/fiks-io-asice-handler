@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -30,8 +31,8 @@ public class PipedEncryptionServiceImpl implements PipedEncryptionService {
     }
 
     @Override
-    public PipedInputStream encrypt(PipedInputStream pipedInputStream, X509Certificate mottakerSertifikat) {
-        Preconditions.checkNotNull(pipedInputStream);
+    public PipedInputStream encrypt(InputStream inputStream, X509Certificate mottakerSertifikat) {
+        Preconditions.checkNotNull(inputStream);
         Preconditions.checkNotNull(mottakerSertifikat);
 
         final Map<String, String> mdc = MDC.getCopyOfContextMap();
@@ -42,7 +43,7 @@ public class PipedEncryptionServiceImpl implements PipedEncryptionService {
             executor.execute(() -> {
                 Optional.ofNullable(mdc).ifPresent(MDC::setContextMap);
                 try (OutputStream krypteringStream = cmsKryptoHandler.getKrypteringOutputStream(kryptertOutputStream, mottakerSertifikat)) {
-                    IOUtils.copy(pipedInputStream, krypteringStream);
+                    IOUtils.copy(inputStream, krypteringStream);
                 } catch (IOException e) {
                     log.error("Failed to copy stream", e);
                     try {
