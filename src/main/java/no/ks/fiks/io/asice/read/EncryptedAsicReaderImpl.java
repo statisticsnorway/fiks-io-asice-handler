@@ -11,12 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.PrivateKey;
@@ -49,14 +44,14 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
         checkNotNull(privateKey);
         try {
             PipedOutputStream out = new PipedOutputStream();
-            InputStream pipedInputStream = new PipedInputStream(out);
+            PipedInputStream pipedInputStream = new PipedInputStream(out);
             final Map<String, String> mdc = MDC.getCopyOfContextMap();
             executorService.execute(() -> {
                 Optional.ofNullable(mdc).ifPresent(MDC::setContextMap);
                 try (ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(out))) {
                     decrypt(encryptedAsicData, zipOutputStream, privateKey);
                 } catch (IOException e) {
-                    log.warn("Failed to decrypt stream", e);
+                    log.error("Failed to decrypt stream", e);
                     throw new RuntimeException(e);
                 } finally {
                     MDC.clear();
@@ -84,6 +79,7 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
 
     private void decrypt(final InputStream encryptedAsic, final PrivateKey privateKey, final ZipOutputStream zipOutputStream) {
         CMSKrypteringImpl cmsKryptering = new CMSKrypteringImpl();
+
         InputStream inputStream = cmsKryptering.dekrypterData(encryptedAsic, privateKey);
         decryptElementer(encryptedAsic, zipOutputStream, inputStream);
     }
@@ -95,7 +91,6 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
             reader = asicReaderFactory.open(inputStream);
 
             boolean entryAdded = false;
-
             String filnavn;
             while ((filnavn = reader.getNextFile()) != null) {
                 entryAdded = true;
@@ -120,7 +115,6 @@ public class EncryptedAsicReaderImpl implements EncryptedAsicReader {
         checkNotNull(encryptedAsic);
         checkNotNull(zipOutputStream);
         checkNotNull(privatNokkel);
-
         InputStream inputStream = decryptionStreamService.decrypterStream(encryptedAsic, privatNokkel);
         decryptElementer(encryptedAsic, zipOutputStream, inputStream);
     }
